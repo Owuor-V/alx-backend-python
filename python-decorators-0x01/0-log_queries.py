@@ -1,16 +1,48 @@
-#!/usr/bin/python3
+# #!/usr/bin/python3
+# import sqlite3
+# import functools
+#
+# # ✅ Decorator to log SQL queries
+# def log_queries(func):
+#     @functools.wraps(func)
+#     def wrapper(*args, **kwargs):
+#         query = kwargs.get("query") if "query" in kwargs else (args[0] if args else None)
+#         if query:
+#             print(f"[LOG] Executing SQL Query: {query}")
+#         else:
+#             print("[LOG] No SQL query provided")
+#         return func(*args, **kwargs)
+#     return wrapper
+#
+#
+# @log_queries
+# def fetch_all_users(query):
+#     conn = sqlite3.connect('users.db')
+#     cursor = conn.cursor()
+#     cursor.execute(query)
+#     results = cursor.fetchall()
+#     conn.close()
+#     return results
+#
+#
+# if __name__ == "__main__":
+#     # ✅ fetch users while logging the query
+#     users = fetch_all_users(query="SELECT * FROM users")
+#     for user in users:
+#         print(user)
+
 import sqlite3
 import functools
+from datetime import datetime   # ✅ required import
 
-# ✅ Decorator to log SQL queries
+# decorator to log SQL queries
 def log_queries(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        query = kwargs.get("query") if "query" in kwargs else (args[0] if args else None)
+        query = kwargs.get("query") if "query" in kwargs else args[0] if args else None
         if query:
-            print(f"[LOG] Executing SQL Query: {query}")
-        else:
-            print("[LOG] No SQL query provided")
+            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"[{now}] Executing SQL Query: {query}")
         return func(*args, **kwargs)
     return wrapper
 
@@ -25,8 +57,6 @@ def fetch_all_users(query):
     return results
 
 
-if __name__ == "__main__":
-    # ✅ fetch users while logging the query
-    users = fetch_all_users(query="SELECT * FROM users")
-    for user in users:
-        print(user)
+# fetch users while logging the query
+users = fetch_all_users(query="SELECT * FROM users")
+print(users)
