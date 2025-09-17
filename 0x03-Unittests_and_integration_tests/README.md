@@ -11,7 +11,6 @@ It focuses on writing unit tests and integration tests in Python using the `unit
 - Write test cases that follow best practices
 
 ## Requirements
-- All files are interpreted/compiled on **Ubuntu 18.04 LTS** using **Python 3.7**
 - Files must end with a newline
 - The first line of all files should be exactly:
   ```bash
