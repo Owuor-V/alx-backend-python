@@ -1,29 +1,14 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint for Conversations:
-    - list all conversations
-    - create new conversation with participants
-    - view a single conversation (with nested messages)
-    """
-
     queryset = Conversation.objects.all().prefetch_related("participants", "message_set")
     serializer_class = ConversationSerializer
 
     def create(self, request, *args, **kwargs):
-        """
-        Create a new conversation with participants.
-        Expects: {"participants": [user_id1, user_id2, ...]}
-        """
         participant_ids = request.data.get("participants", [])
         if not participant_ids:
             return Response(
@@ -40,20 +25,10 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint for Messages:
-    - list all messages
-    - create/send message to a conversation
-    """
-
     queryset = Message.objects.all().select_related("sender", "conversation")
     serializer_class = MessageSerializer
 
     def create(self, request, *args, **kwargs):
-        """
-        Send a message to a conversation.
-        Expects: {"conversation": conversation_id, "sender": user_id, "message_body": "text"}
-        """
         conversation_id = request.data.get("conversation")
         sender_id = request.data.get("sender")
         body = request.data.get("message_body")
