@@ -20,14 +20,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 # ✅ Message Serializer
 class MessageSerializer(serializers.ModelSerializer):
-    sender = UserSerializer(read_only=True)
+    sender = UserSerializer(read_only=True)   # nested user
 
     class Meta:
         model = Message
         fields = [
             "message_id",
             "sender",
-            "conversation",
             "message_body",
             "sent_at",
         ]
@@ -35,8 +34,8 @@ class MessageSerializer(serializers.ModelSerializer):
 
 # ✅ Conversation Serializer
 class ConversationSerializer(serializers.ModelSerializer):
-    participants = UserSerializer(many=True, read_only=True)
-    messages = MessageSerializer(many=True, read_only=True)
+    participants = UserSerializer(many=True, read_only=True)  # nested users
+    messages = MessageSerializer(many=True, read_only=True, source="message_set")
 
     class Meta:
         model = Conversation
