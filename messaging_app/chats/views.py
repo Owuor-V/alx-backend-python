@@ -71,18 +71,30 @@ class MessageViewSet(viewsets.ModelViewSet):
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
+    # ✅ Check 3: Apply custom permission to enforce access control
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
 
     def get_queryset(self):
-        # Restrict conversations to only those the user participates in
+        # Return only conversations the user is part of
         return Conversation.objects.filter(participants=self.request.user)
 
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    # ✅ Check 3: Apply custom permission to enforce access control
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
 
     def get_queryset(self):
-        # Restrict messages to conversations the user participates in
+        # Return only messages in conversations the user participates in
         return Message.objects.filter(conversation__participants=self.request.user)
+
+    def perform_create(self, serializer):
+        """
+        ✅ Enforce that users can only create messages in conversations
+        they are part of.
+        """
+        conversation = serializer.validated_data.get("conversation")
+        if self.request.user not in conversation.participants.all():
+            raise PermissionError("You are not a participant of this conversation.")
+        serializer.save(sender=self.request.user)
