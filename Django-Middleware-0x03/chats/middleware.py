@@ -89,7 +89,7 @@ class OffensiveLanguageMiddleware:
 #                 return HttpResponseForbidden("You do not have permission to perform this action.")
 #
 #         return self.get_response(request)
-    
+
 class RolePermissionMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

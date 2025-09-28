@@ -1,0 +1,22 @@
+{
+  "info": {
+    "name": "Messaging App API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"username\": \"testuser\", \"password\": \"password123\" }"
+        },
+        "url": { "raw": "http://127.0.0.1:8000/api/token/" }
+      }
+    }
+  ]
+}
