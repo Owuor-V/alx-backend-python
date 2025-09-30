@@ -105,6 +105,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         serializer.save(sender=self.request.user)
 
 
+
 @cache_page(60)  # ✅ Cache for 60 seconds
 def conversation_view(request, username):
     """
@@ -121,4 +122,8 @@ def conversation_view(request, username):
         .order_by("timestamp")
     )
 
-    return render(request, "chats/conversation.html", {"messages": messages, "other_user": other_user})
+    return render(
+        request,
+        "chats/conversation.html",
+        {"messages": messages, "other_user": other_user},
+    )
