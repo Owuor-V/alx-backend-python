@@ -5,7 +5,7 @@ from django.http import HttpResponseForbidden
 # Configure logger for middleware
 logger = logging.getLogger(__name__)
 file_handler = logging.FileHandler("requests.log")
-formatter = logging.Formatter("%(message)s")
+formatter = logging.Formatter("%(messaging)s")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)

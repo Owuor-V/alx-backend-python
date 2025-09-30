@@ -5,9 +5,6 @@ from .models import Message, Notification
 
 @receiver(post_save, sender=Message)
 def create_notification(sender, instance, created, **kwargs):
-    """
-    Automatically create a notification when a new message is sent.
-    """
     if created:
         Notification.objects.create(
             user=instance.receiver,

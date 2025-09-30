@@ -9,7 +9,7 @@ class SignalTestCase(TestCase):
         self.user2 = User.objects.create_user(username="bob", password="pass123")
 
     def test_notification_created_on_message(self):
-        # Create a new message
+        # Create a new messaging
         msg = Message.objects.create(sender=self.user1, receiver=self.user2, content="Hello Bob!")
 
         # Check if notification was created

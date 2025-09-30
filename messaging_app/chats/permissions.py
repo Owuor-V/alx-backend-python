@@ -7,7 +7,7 @@ class IsOwner(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        # Assuming your message model has a `sender` or `owner` field
+        # Assuming your messaging model has a `sender` or `owner` field
         return obj.sender == request.user or obj.receiver == request.user
 
 class IsParticipantOfConversation(permissions.BasePermission):

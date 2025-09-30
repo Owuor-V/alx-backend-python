@@ -59,11 +59,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 #                 status=status.HTTP_404_NOT_FOUND,
 #             )
 #
-#         message = Message.objects.create(
+#         messaging = Message.objects.create(
 #             conversation=conversation, sender=sender, message_body=body
 #         )
 #
-#         serializer = self.get_serializer(message)
+#         serializer = self.get_serializer(messaging)
 #         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class MessageViewSet(viewsets.ModelViewSet):
