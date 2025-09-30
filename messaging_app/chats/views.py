@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404, render
+from django.views.decorators.cache import cache_page
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Conversation, Message, User
@@ -102,13 +104,21 @@ class MessageViewSet(viewsets.ModelViewSet):
             raise PermissionError("You are not a participant of this conversation.")
         serializer.save(sender=self.request.user)
 
-class MessageViewSet(viewsets.ModelViewSet):
-    queryset = Message.objects.all()
-    serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
-    pagination_class = MessagePagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = MessageFilter
 
-    def get_queryset(self):
-        return Message.objects.filter(conversation__participants=self.request.user)
+@cache_page(60)  # ✅ Cache for 60 seconds
+def conversation_view(request, username):
+    """
+    Displays a conversation between the logged-in user and another user.
+    Cached for 60 seconds.
+    """
+    other_user = get_object_or_404(User, username=username)
+    messages = (
+        Message.objects.filter(
+            sender__in=[request.user, other_user],
+            receiver__in=[request.user, other_user],
+        )
+        .select_related("sender", "receiver")
+        .order_by("timestamp")
+    )
+
+    return render(request, "chats/conversation.html", {"messages": messages, "other_user": other_user})
