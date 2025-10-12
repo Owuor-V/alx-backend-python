@@ -13,9 +13,9 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
-      - "3307:3306"  # Expose MySQL on port 3307 (optional)
+      - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql   # ✅ Persistent volume for database data
 
   web:
     build: .
@@ -30,5 +30,6 @@ services:
     volumes:
       - .:/app
 
+# ✅ Define the named volume at the bottom
 volumes:
   mysql_data:
