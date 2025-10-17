@@ -1,0 +1,38 @@
+#!/bin/bash
+# kubctl-0x03 - Script to apply rolling update for the Django Messaging App
+
+set -e
+
+DEPLOYMENT="django-blue"
+SERVICE="django-messaging-service"
+
+echo "🚀 Applying updated deployment (version 2.0)..."
+kubectl apply -f messaging_app/blue_deployment.yaml
+
+echo "🔄 Starting rolling update..."
+kubectl rollout status deployment/$DEPLOYMENT
+
+echo "📦 Verifying current pods..."
+kubectl get pods -l app=django-messaging-app
+
+# Get service IP to test live responses
+SERVICE_IP=$(kubectl get svc $SERVICE -o jsonpath='{.spec.clusterIP}')
+
+if [ -z "$SERVICE_IP" ]; then
+  echo "❌ Could not retrieve the service ClusterIP."
+  exit 1
+fi
+
+echo "🌐 Service IP: $SERVICE_IP"
+echo "⚙️  Testing for downtime during rollout (sending continuous requests)..."
+
+# Send 20 test requests while rollout happens
+for i in {1..20}; do
+  curl -s -o /dev/null -w "Request $i → HTTP %{http_code}\n" http://$SERVICE_IP:8000/ || echo "❌ Request $i failed"
+  sleep 1
+done
+
+echo "✅ Rolling update completed successfully!"
+echo "📋 Final status:"
+kubectl get pods -l app=django-messaging-app
+
