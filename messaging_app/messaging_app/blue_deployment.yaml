@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-blue
+  labels:
+    app: django-messaging-app
+    version: blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: django-messaging-app
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: django-messaging-app
+        version: blue
+    spec:
+      containers:
+        - name: django-blue-container
+          image: owuor/messaging_app:blue   # 🔵 old/stable version
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: "messaging_app.settings"
+
