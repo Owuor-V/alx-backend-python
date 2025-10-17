@@ -1,0 +1,56 @@
+#!/bin/bash
+# kubctl-0x01 - Script to scale the Django app and test its performance on Kubernetes
+
+set -e
+
+DEPLOYMENT_NAME="django-messaging-app"
+
+echo "🚀 Scaling the Django Messaging App deployment to 3 replicas..."
+kubectl scale deployment "$DEPLOYMENT_NAME" --replicas=3
+
+echo "⏳ Waiting for pods to scale up..."
+sleep 10
+
+echo "📦 Verifying that multiple pods are running..."
+kubectl get pods -l app="$DEPLOYMENT_NAME"
+
+echo "📊 Checking resource usage for the running pods..."
+if ! command -v kubectl &> /dev/null
+then
+    echo "❌ kubectl command not found!"
+    exit 1
+fi
+
+# Check if metrics server is available
+if kubectl top pods &> /dev/null
+then
+    kubectl top pods
+else
+    echo "⚠️ Metrics server not installed. To enable resource monitoring, run:"
+    echo "👉 minikube addons enable metrics-server"
+fi
+
+# Load testing section
+echo "🔥 Performing load testing using wrk..."
+
+# Check if wrk is installed
+if ! command -v wrk &> /dev/null
+then
+    echo "❌ wrk not found. Please install it first (e.g., sudo apt install wrk -y)."
+    exit 1
+fi
+
+# Retrieve ClusterIP of the Django service
+SERVICE_IP=$(kubectl get svc django-messaging-service -o jsonpath='{.spec.clusterIP}')
+
+if [ -z "$SERVICE_IP" ]; then
+  echo "❌ Could not retrieve the service ClusterIP."
+  exit 1
+fi
+
+# Perform load test against the service on port 8000
+echo "⚙️ Running wrk load test on http://$SERVICE_IP:8000 ..."
+wrk -t2 -c50 -d15s http://$SERVICE_IP:8000/
+
+echo "✅ Scaling, monitoring, and load testing complete!"
+
