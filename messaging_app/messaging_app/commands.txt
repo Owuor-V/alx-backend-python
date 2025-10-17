@@ -1,0 +1,35 @@
+
+
+# Start Minikube cluster
+minikube start
+
+# Enable the NGINX Ingress controller addon
+minikube addons enable ingress
+
+# Apply the Django app Deployment and Service
+kubectl apply -f messaging_app/deployment.yaml
+
+# Apply the Ingress resource to expose the Django app
+kubectl apply -f messaging_app/ingress.yaml
+
+# Verify that the Ingress resource has been created
+kubectl get ingress
+
+# (Optional) View Ingress details
+kubectl describe ingress django-messaging-ingress
+
+# Add a local host mapping for testing (Linux/Mac)
+# Run this only once if not already set
+echo "127.0.0.1 messaging.local" | sudo tee -a /etc/hosts
+
+# Get Minikube IP (used to access the app)
+minikube ip
+
+# Test that the Django app is accessible through Ingress
+curl http://messaging.local/api/
+
+# (Optional) Check running pods and services
+kubectl get pods
+kubectl get svc
+
+
