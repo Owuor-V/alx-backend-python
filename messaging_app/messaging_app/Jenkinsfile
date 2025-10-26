@@ -8,6 +8,65 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // ✅ Pull from GitHub using Jenkins credentials
+                git branch: 'main',
+                    credentialsId: 'github-credentials',  // <-- your Jenkins GitHub credentials ID
+                    url: 'https://github.com/<your-username>/alx-backend-python.git'
+            }
+        }
+
+        stage('Setup Python Environment') {
+            steps {
+                script {
+                    // ✅ Use ShiningPanda for Python environment
+                    withPythonEnv("${PYTHON_ENV}") {
+                        sh '''
+                            python3 -m venv venv
+                            . venv/bin/activate
+                            python3 -m pip install --upgrade pip
+                            pip install -r messaging_app/requirements.txt
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    sh '''
+                        . venv/bin/activate
+                        mkdir -p test-results
+                        pytest messaging_app/tests --junitxml=test-results/results.xml
+                    '''
+                }
+            }
+        }
+
+        stage('Publish Test Report') {
+            steps {
+                // ✅ Generate test report for Jenkins UI
+                junit 'test-results/results.xml'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '✅ Pipeline completed.'
+        }
+    }
+}
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_ENV = 'venv'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
                 git branch: 'main', 
                     url: 'https://github.com/<your-username>/alx-backend-python.git'
             }
@@ -31,7 +90,7 @@ pipeline {
             steps {
                 script {
                     sh '. venv/bin/activate && pytest --junitxml=test-results/results.xml'
-                }
+               
             }
         }
 
