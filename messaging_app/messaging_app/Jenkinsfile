@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_ENV = 'venv'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', 
+                    url: 'https://github.com/<your-username>/alx-backend-python.git'
+            }
+        }
+
+        stage('Setup Python Environment') {
+            steps {
+                script {
+                    // Using ShiningPanda plugin to create a virtual environment
+                    withPythonEnv("${PYTHON_ENV}") {
+                        sh 'python3 -m venv venv'
+                        sh '. venv/bin/activate'
+                        sh 'pip install --upgrade pip'
+                        sh 'pip install -r messaging_app/requirements.txt'
+                    }
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    sh '. venv/bin/activate && pytest --junitxml=test-results/results.xml'
+                }
+            }
+        }
+
+        stage('Publish Test Report') {
+            steps {
+                junit 'test-results/results.xml'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+    }
+}
+
