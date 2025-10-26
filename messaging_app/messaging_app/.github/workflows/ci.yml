@@ -48,6 +48,7 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r messaging_app/requirements.txt
+          pip install flake8 coverage pytest pytest-django
 
       - name: Wait for MySQL to start
         run: |
@@ -56,19 +57,30 @@ jobs:
             sleep 3
           done
 
+      - name: Run flake8 lint check
+        run: |
+          source venv/bin/activate
+          # Fail build on any lint error
+          flake8 messaging_app --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 messaging_app --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+
       - name: Run database migrations
         run: |
           source venv/bin/activate
           python messaging_app/manage.py migrate
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
           source venv/bin/activate
-          pytest --ds=messaging_app.settings --junitxml=test-results/results.xml
+          coverage run --source=messaging_app -m pytest --ds=messaging_app.settings
+          coverage xml
+          coverage report -m
 
-      - name: Upload test results
+      - name: Upload test and coverage reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: test-results/results.xml
+          name: reports
+          path: |
+            test-results/
+            coverage.xml
